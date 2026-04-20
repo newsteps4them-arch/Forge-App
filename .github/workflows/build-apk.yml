@@ -1,0 +1,5 @@
+      - name: Build Android APK
+        run: |
+          cd android
+          ./gradlew clean
+          ./gradlew assembleDebug --no-daemon

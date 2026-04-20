@@ -1,0 +1,63 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.facebook.react'
+
+react {
+}
+
+def enableProguardInReleaseBuilds = false
+def jscFlavor = 'org.webkit:android-jsc:+'
+
+android {
+    ndkVersion "27.0.12077973"
+    buildToolsVersion "34.0.0"
+    compileSdk 34
+    namespace "com.forge"
+
+    defaultConfig {
+        applicationId "com.forge"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    signingConfigs {
+        debug {
+            storeFile file('debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+        release {
+            if (System.getenv('STORE_PASSWORD') != null) {
+                storeFile file(System.getenv('KEYSTORE_FILE') ?: "debug.keystore")
+                storePassword System.getenv('STORE_PASSWORD')
+                keyAlias System.getenv('KEY_ALIAS')
+                keyPassword System.getenv('KEY_PASSWORD')
+            } else {
+                initWith signingConfigs.debug
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled enableProguardInReleaseBuilds
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+        }
+    }
+}
+
+dependencies {
+    implementation("com.facebook.react:react-android")
+
+    if (hermesEnabled.toBoolean()) {
+        implementation("com.facebook.react:hermes-android")
+    } else {
+        implementation jscFlavor
+    }
+}
